@@ -7,6 +7,7 @@ import OrgTabs from './apps/OrgTabs';
 import JsInject from './apps/JsInject';
 import browser from 'webextension-polyfill';
 import Windows from './apps/Windows';
+import History from './apps/History';
 
 let autoConnectInterval = null;
 let connectedPorts: browser.Runtime.Port[] = [];
@@ -82,6 +83,7 @@ const run = async () => {
   sf.registerApp('js-injection', JsInject);
   sf.registerApp('tabs', Tabs);
   sf.registerApp('spookfox-windows', Windows);
+  sf.registerApp('history', History);
 
   startAutoconnectTimer(sf);
 };
