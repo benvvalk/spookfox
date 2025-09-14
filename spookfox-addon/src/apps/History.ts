@@ -27,7 +27,7 @@ export default class History implements SFApp<HistoryState> {
     public name: string,
     public sf: Spookfox
   ) {
-    sf.registerReqHandler(EmacsRequests.SEARCH_HISTORY, this.searchHistory);
+    sf.registerReqHandler(EmacsRequests.GET_HISTORY, this.searchHistory);
   }
 
   serializeHistoryItem(item: browser.History.HistoryItem): SFHistoryItem {
@@ -50,7 +50,7 @@ export default class History implements SFApp<HistoryState> {
       endTime?: number;
     } = {}
   ): Promise<SFHistoryItem[]> => {
-    const { maxResults = 1000, startTime, endTime } = msg;
+    const { text="", maxResults = 1000, startTime, endTime } = msg;
 
     const searchQuery: browser.History.SearchQuery = {
       text,
@@ -94,5 +94,5 @@ export enum Actions {
 }
 
 export enum EmacsRequests {
-  SEARCH_HISTORY = 'H_GET_HISTORY',
+  GET_HISTORY = 'H_GET_HISTORY',
 }
