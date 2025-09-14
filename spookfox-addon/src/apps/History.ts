@@ -51,7 +51,7 @@ export default class History implements SFApp<HistoryState> {
       endTime?: number;
     } = {}
   ): Promise<SFHistoryItem[]> => {
-    const { text = '', maxResults = 50, startTime, endTime } = msg;
+    const { text = '', maxResults = 1000, startTime, endTime } = msg;
 
     const searchQuery: browser.History.SearchQuery = {
       text,
@@ -64,10 +64,13 @@ export default class History implements SFApp<HistoryState> {
     try {
       const historyItems = await browser.history.search(searchQuery);
 
-      // Sort by last visit time (most recent first)
-      const sortedItems = historyItems.sort(
-        (a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0)
-      );
+      // Sort by frecency (frequency + recency score)
+      const now = Date.now();
+      const sortedItems = historyItems.sort((a, b) => {
+        const aFrecency = (a.visitCount || 0) * Math.log(1 + (now - (a.lastVisitTime || 0)) / (1000 * 60 * 60 * 24));
+        const bFrecency = (b.visitCount || 0) * Math.log(1 + (now - (b.lastVisitTime || 0)) / (1000 * 60 * 60 * 24));
+        return bFrecency - aFrecency;
+      });
 
       return sortedItems.map(this.serializeHistoryItem);
     } catch (error) {
