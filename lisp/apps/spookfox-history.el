@@ -17,15 +17,15 @@
     (apply #'spookfox-request args)))
 
 (defun spookfox-history--search-history (&optional max-results)
-  "Get up to MAX-RESULTS URLs/titles from browser history, ranked by frecency score."
-  (let ((client (cl-first spookfox--connected-clients)))
-    (when client
-      (plist-get
-       (spookfox--poll-response
-        (spookfox-history--request
-         client "GET_HISTORY"
-         `(:maxResults ,(or max-results 1000))))
-       :payload))))
+  "Returns a vector containing up to MAX-RESULTS URLs/titles from browser
+history, sorted in descending order of frecency score."
+  (when-let ((client (cl-first spookfox--connected-clients)))
+    (plist-get
+     (spookfox--poll-response
+      (spookfox-history--request
+       client "GET_HISTORY"
+       `(:maxResults ,(or max-results 300))))
+     :payload)))
 
 (defun spookfox-history--format-item (item)
   "Format a history ITEM for display in completion."
