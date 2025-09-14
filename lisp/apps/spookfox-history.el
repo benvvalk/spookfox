@@ -77,42 +77,6 @@
                 (message "Opening: %s" url))
             (message "No URL found for selection")))))))
 
-;;;###autoload
-(defun spookfox-search-history-dwim ()
-  "Smart history search - use current word/region to filter results."
-  (interactive)
-  (if (not spookfox--connected-clients)
-      (message "Spookfox is not connected to any browser")
-    (let* ((initial-input (cond
-                           ((region-active-p)
-                            (buffer-substring-no-properties (region-beginning) (region-end)))
-                           ((thing-at-point 'word)
-                            (thing-at-point 'word t))
-                           (t "")))
-           (results (spookfox-history--search-history ""))
-           (item-map (make-hash-table :test 'equal))
-           (completion-candidates '()))
-
-      (if (not results)
-          (message "No history items found")
-        ;; Convert vector to list if needed and build completion candidates
-        (let ((items-list (if (vectorp results)
-                              (append results nil)
-                            results)))
-          (dolist (item items-list)
-            (let* ((formatted (spookfox-history--format-item item))
-                   (url (plist-get item :url)))
-              (push formatted completion-candidates)
-              (puthash formatted url item-map))))
-
-        ;; Let user select from all results with initial input
-        (let* ((selected (completing-read "Open history item: " completion-candidates nil t initial-input))
-               (url (gethash selected item-map)))
-          (if url
-              (progn
-                (spookfox-history--open-url url)
-                (message "Opening: %s" url))
-            (message "No URL found for selection")))))))
 
 (provide 'spookfox-history)
 ;;; spookfox-history.el ends here
