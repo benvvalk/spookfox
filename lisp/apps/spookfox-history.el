@@ -52,30 +52,26 @@ history, sorted in descending order of frecency score."
   (interactive)
   (if (not spookfox--connected-clients)
       (message "Spookfox is not connected to any browser")
-    (let* ((results (spookfox-history--search-history))
+    (let* ((items-list (spookfox-history--search-history))
            (item-map (make-hash-table :test 'equal))
            (completion-candidates '()))
 
-      (if (not results)
-          (message "No history items found")
-        ;; Convert vector to list if needed and build completion candidates
-        (let ((items-list (if (vectorp results)
-                              (append results nil)
-                            results)))
-          (dolist (item items-list)
-            (let* ((formatted (spookfox-history--format-item item))
-                   (url (plist-get item :url)))
-              (push formatted completion-candidates)
-              (puthash formatted url item-map))))
+      ;; Build hash table of URL -> formatted completion list item
+      (dotimes (i (length items-list))
+        (let* ((item (aref items-list i))
+               (formatted (spookfox-history--format-item item))
+               (url (plist-get item :url)))
+          (push formatted completion-candidates)
+          (puthash formatted url item-map)))
 
-        ;; Let user select from all results
-        (let* ((selected (completing-read "Open history item: " completion-candidates nil t))
-               (url (gethash selected item-map)))
-          (if url
-              (progn
-                (spookfox-history--open-url url)
-                (message "Opening: %s" url))
-            (message "No URL found for selection")))))))
+      ;; Let user select from all results
+      (let* ((selected (completing-read "Open history item: " completion-candidates nil t))
+             (url (gethash selected item-map)))
+        (if url
+            (progn
+              (spookfox-history--open-url url)
+              (message "Opening: %s" url))
+          (message "No URL found for selection"))))))
 
 
 (provide 'spookfox-history)
