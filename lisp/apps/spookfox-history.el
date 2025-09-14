@@ -16,15 +16,15 @@
   (let ((spookfox--msg-prefix spookfox-history--msg-prefix))
     (apply #'spookfox-request args)))
 
-(defun spookfox-history--search-history (query &optional max-results)
-  "Search browser history for QUERY, returning up to MAX-RESULTS items."
+(defun spookfox-history--search-history (&optional max-results)
+  "Get up to MAX-RESULTS URLs/titles from browser history, ranked by frecency score."
   (let ((client (cl-first spookfox--connected-clients)))
     (when client
       (plist-get
        (spookfox--poll-response
         (spookfox-history--request
-         client "SEARCH_HISTORY"
-         `(:text ,query :maxResults ,(or max-results 50))))
+         client "GET_HISTORY"
+         `(:maxResults ,(or max-results 1000))))
        :payload))))
 
 (defun spookfox-history--format-item (item)
@@ -52,7 +52,7 @@
   (interactive)
   (if (not spookfox--connected-clients)
       (message "Spookfox is not connected to any browser")
-    (let* ((results (spookfox-history--search-history ""))
+    (let* ((results (spookfox-history--search-history))
            (item-map (make-hash-table :test 'equal))
            (completion-candidates '()))
 

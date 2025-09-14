@@ -41,17 +41,16 @@ export default class History implements SFApp<HistoryState> {
   }
 
   /**
-   * Search browser history by text query
+   * Get browser history items
    */
   searchHistory = async (
     msg: {
-      text?: string;
       maxResults?: number;
       startTime?: number;
       endTime?: number;
     } = {}
   ): Promise<SFHistoryItem[]> => {
-    const { text = '', maxResults = 1000, startTime, endTime } = msg;
+    const { maxResults = 1000, startTime, endTime } = msg;
 
     const searchQuery: browser.History.SearchQuery = {
       text,
@@ -95,5 +94,5 @@ export enum Actions {
 }
 
 export enum EmacsRequests {
-  SEARCH_HISTORY = 'H_SEARCH_HISTORY',
+  SEARCH_HISTORY = 'H_GET_HISTORY',
 }
